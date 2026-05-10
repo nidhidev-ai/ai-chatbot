@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Chatbot</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial;
+      background: #1a1a2e;
+      color: white;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    h1 { color: #e94560; font-size: 32px; margin-bottom: 10px; }
+    p { color: #aaa; margin-bottom: 20px; }
+    #chat-box {
+      width: 100%;
+      max-width: 700px;
+      height: 60vh;
+      background: #16213e;
+      border-radius: 12px;
+      padding: 20px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+    .message {
+      margin: 10px 0;
+      padding: 12px 16px;
+      border-radius: 10px;
+      max-width: 80%;
+      line-height: 1.5;
+    }
+    .user-message {
+      background: #e94560;
+      margin-left: auto;
+      text-align: right;
+    }
+    .bot-message {
+      background: #0f3460;
+      margin-right: auto;
+    }
+    .bot-name {
+      font-size: 11px;
+      color: #aaa;
+      margin-bottom: 4px;
+    }
+    #input-area {
+      display: flex;
+      width: 100%;
+      max-width: 700px;
+      gap: 10px;
+    }
+    #user-input {
+      flex: 1;
+      padding: 14px;
+      font-size: 16px;
+      background: #16213e;
+      color: white;
+      border: 2px solid #e94560;
+      border-radius: 8px;
+      outline: none;
+    }
+    #send-btn {
+      padding: 14px 24px;
+      font-size: 16px;
+      background: #e94560;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    #send-btn:hover { background: #c73652; }
+    .typing {
+      color: #aaa;
+      font-style: italic;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🤖 AI Chatbot</h1>
+  <p>Ask me anything!</p>
+
+  <div id="chat-box">
+    <div class="message bot-message">
+      <div class="bot-name">🤖 AI</div>
+      Hello! I am your AI assistant. Ask me anything! 😊
+    </div>
+  </div>
+
+  <div id="input-area">
+    <input 
+      id="user-input" 
+      type="text" 
+      placeholder="Type your message here..."
+      onkeydown="if(event.key==='Enter') sendMessage()"
+    />
+    <button id="send-btn" onclick="sendMessage()">Send 🚀</button>
+  </div>
+
+  <script>
+    function sendMessage() {
+      const input = document.getElementById('user-input');
+      const message = input.value.trim();
+      if (!message) return;
+
+      // Add user message
+      addMessage(message, 'user');
+      input.value = '';
+
+      // Show typing indicator
+      const chatBox = document.getElementById('chat-box');
+      const typing = document.createElement('div');
+      typing.className = 'typing';
+      typing.id = 'typing';
+      typing.textContent = '🤖 AI is thinking...';
+      chatBox.appendChild(typing);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      // Send to Flask
+      fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: message })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('typing').remove();
+        addMessage(data.reply, 'bot');
+      })
+      .catch(err => {
+        document.getElementById('typing').remove();
+        addMessage('Sorry something went wrong! 😔', 'bot');
+      });
+    }
+
+    function addMessage(text, sender) {
+      const chatBox = document.getElementById('chat-box');
+      const div = document.createElement('div');
+      div.classList.add('message');
+      if (sender === 'user') {
+        div.classList.add('user-message');
+        div.textContent = text;
+      } else {
+        div.classList.add('bot-message');
+        div.innerHTML = '<div class="bot-name">🤖 AI</div>' + text;
+      }
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  </script>
+</body>
+</html>
