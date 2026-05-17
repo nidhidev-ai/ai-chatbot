@@ -1,14 +1,10 @@
 import os
-
-API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
-
 from flask import Flask, render_template, request, jsonify
 import requests
 
 app = Flask(__name__)
 
-API_KEY = "sk-or-your-key-here"
-
+API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -21,8 +17,8 @@ def chat():
         mode = data.get('mode', 'chat')
 
         system_prompts = {
-            'chat': 'You are Nova, a smart friendly AI assistant. Keep responses SHORT, crisp and engaging. Use bullet points. Max 3-4 lines unless asked for more.',
-            'code': 'You are an expert programmer. Always wrap code in triple backticks with language name. Keep explanation brief.',
+            'chat': 'You are Nova, a smart friendly AI assistant. Keep responses SHORT, crisp and conversational. Use bullet points for lists. Max 3-4 lines unless asked for more. NEVER give code in chat mode — if user asks for code, tell them to switch to Code mode by clicking the + button. Be friendly like a friend texting, not a textbook.',
+           'code': 'You are an expert programmer. Rules: 1) Use language specified by user, default Python. 2) Write clean minimal code, no unnecessary comments. 3) When explaining code, explain like ChatGPT — natural flowing explanation, no numbers, no bullets, just clean short sentences for each line. Each line explanation on new line. Maximum 1 sentence per line. Simple English. 4) Always wrap code in triple backticks with language name.',
             'summary': 'Summarize in bullet points only. Max 5 bullets. Each bullet max 1 line.',
             'search': 'Answer in max 3-4 bullet points. Be direct and factual.'
         }
